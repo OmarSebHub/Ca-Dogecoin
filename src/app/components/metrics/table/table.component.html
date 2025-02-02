@@ -27,7 +27,7 @@
 <table
   mat-table
   [dataSource]="dataSource"
-  class="!w-xl !m-auto mat-elevation-z8 !bg-gray-800"
+  class="dogecoin-table sm:!w-xl !m-auto mat-elevation-z8 !bg-gray-800"
 >
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef>Nom</th>
@@ -42,7 +42,7 @@
   </ng-container>
   5
   <ng-container matColumnDef="topExplorer">
-    <th mat-header-cell *matHeaderCellDef>Meilleure plateforme</th>
+    <th mat-header-cell *matHeaderCellDef>1er marché</th>
     <td mat-cell *matCellDef="let element">
       {{ element.topExplorer | titlecase }}
     </td>

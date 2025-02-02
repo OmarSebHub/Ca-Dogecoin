@@ -1,13 +1,11 @@
-<app-menu />
-
 <div
-  class="grid grid-cols-5 justify-center items-center h-100 align-items-center gap-4 mt-5"
+  class="flex flex-col justify-center items-center h-full align-items-center"
 >
-  <div></div>
-  <div class="col-span-3 flex justify-center">
-    <router-outlet />
-  </div>
-  <div></div>
+<app-menu class="mb-auto w-full" />
+<div class="flex justify-center">
+  <router-outlet />
+</div>
+  <app-footer class="mt-auto w-full" />
 </div>
 
-<app-footer />
+

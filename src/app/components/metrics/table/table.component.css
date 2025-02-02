@@ -7,3 +7,12 @@ mat-row, mat-footer-row, mat-header-row {
   margin: 0.2rem;
   padding: 0.5rem;
 }
+
+.dogecoin-table mat-header-row  {
+  border-bottom: 1px solid white;
+}
+
+.dogecoin-table th {
+  border-bottom: unset !important;
+}
+
