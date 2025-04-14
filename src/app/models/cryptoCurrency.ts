@@ -1,23 +1,23 @@
 export interface Icrypto {
-  id: string,
-  name: string,
-  priceUsd?: string,
-  topExplorer?: string
+  id: string;
+  name: string;
+  priceUsd?: string;
+  topExplorer?: string;
 }
 
 export interface ICryptoApiResponse {
-  data: Icrypto[];
+  data?: Icrypto[];
 }
 
 export interface ICryptoItemApiResponse {
-  data: Icrypto
+  data?: Icrypto;
 }
 
 export interface IMarket {
-  exchangeId: string,
-  volumeUsd24Hr: string
+  exchangeId: string;
+  volumeUsd24Hr: string;
 }
 
 export interface IMarketApiResponse {
-  data: IMarket[];
+  data?: IMarket[];
 }

@@ -1,18 +1,21 @@
-.mat-column-name, .mat-column-priceUsd, .mat-column-topExplorer {
+.mat-column-name,
+.mat-column-priceUsd,
+.mat-column-topExplorer {
   flex: 1;
 }
 
-mat-row, mat-footer-row, mat-header-row {
+mat-row,
+mat-footer-row,
+mat-header-row {
   min-height: 100%;
   margin: 0.2rem;
   padding: 0.5rem;
 }
 
-.dogecoin-table mat-header-row  {
+.dogecoin-table mat-header-row {
   border-bottom: 1px solid white;
 }
 
 .dogecoin-table th {
   border-bottom: unset !important;
 }
-

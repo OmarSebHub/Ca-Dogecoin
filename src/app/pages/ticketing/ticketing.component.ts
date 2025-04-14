@@ -7,15 +7,11 @@ import {
 } from '@angular/forms';
 import { InputNumberComponent } from '../../components/ticketing/input-number/input-number.component';
 import { DogeCoinConversionService } from '../../services/doge-coin-conversion.service';
-import { CommonModule} from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-ticketing',
-  imports: [
-    ReactiveFormsModule,
-    InputNumberComponent,
-    CommonModule
-  ],
+  imports: [ReactiveFormsModule, InputNumberComponent, CommonModule],
   templateUrl: './ticketing.component.html',
   styleUrl: './ticketing.component.css',
 })
@@ -36,22 +32,19 @@ export class TicketingComponent {
 
   private subscription!: Subscription | undefined;
 
-  constructor
-  (
-    private dogeCoinConversionService: DogeCoinConversionService
-  ) {}
+  constructor(private dogeCoinConversionService: DogeCoinConversionService) {}
 
   ngOnInit(): void {
     this.subscription = this.ticketForm
       .get('ticketsNumber')
-      ?.valueChanges.subscribe((value) => {
+      ?.valueChanges.subscribe(value => {
         if (value !== null && value !== undefined) {
           this.currentTicketsNumber = value;
           this.showInvoice = false;
 
           this.dogeCoinConversionService
             .transformTicketsToDogeCoin(value)
-            .subscribe((res) => {
+            .subscribe(res => {
               this.ticketsPriceInDogeCoin = res;
             });
         }
@@ -67,7 +60,7 @@ export class TicketingComponent {
       ) {
         this.dogeCoinConversionService
           .transformTicketsToDogeCoin(ticketsNumberFieldVal)
-          .subscribe((res) => {
+          .subscribe(res => {
             this.ticketsNumber = ticketsNumberFieldVal;
             this.dogeCoinsToPay = res;
             this.showInvoice = true;

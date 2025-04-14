@@ -12,8 +12,8 @@ export class DogeCoinConversionService {
 
   public transformTicketsToDogeCoin(ticketsNumber: number): Observable<number> {
     return this.coinCapApiService.getCoinById('dogecoin').pipe(
-      map((res) => {
-        if (res.priceUsd) {
+      map(res => {
+        if (res?.priceUsd) {
           const dogecoinPrice = Number(res.priceUsd);
           const dogecoinsPerDollar = this.dollarToDogeCoin(dogecoinPrice);
           const ticketsTotalPrice = ticketsNumber * this.ticketPrice;
@@ -27,12 +27,12 @@ export class DogeCoinConversionService {
 
         return 0;
       }),
-      catchError((error) => {
+      catchError(error => {
         console.error(
           'Error transforming tickets to dogecoin. Details: ',
           error
         );
-        
+
         return of(0);
       })
     );

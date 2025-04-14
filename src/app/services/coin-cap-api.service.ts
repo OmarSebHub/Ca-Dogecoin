@@ -1,13 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {
-  Icrypto,
-  ICryptoApiResponse,
-  ICryptoItemApiResponse,
-  IMarket,
-  IMarketApiResponse,
-} from '../models/cryptoCurrency';
-import {
   catchError,
   forkJoin,
   from,
@@ -18,6 +11,13 @@ import {
   reduce,
   switchMap,
 } from 'rxjs';
+import {
+  Icrypto,
+  ICryptoApiResponse,
+  ICryptoItemApiResponse,
+  IMarket,
+  IMarketApiResponse,
+} from '../models/cryptoCurrency';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +27,9 @@ export class CoinCapApiService {
 
   constructor(private http: HttpClient) {}
 
-  private getCoinsByIds(coinIds: string[]): Observable<Icrypto[] | null> {
+  private getCoinsByIds(
+    coinIds: string[]
+  ): Observable<Icrypto[] | null | undefined> {
     return this.http
       .get<ICryptoApiResponse>(`${this.baseUrl}/assets`, {
         params: {
@@ -35,8 +37,8 @@ export class CoinCapApiService {
         },
       })
       .pipe(
-        map((response) => response.data),
-        catchError((error) => {
+        map(response => response.data),
+        catchError(error => {
           console.error('Observable Error Caught:', error);
 
           return of(null);
@@ -44,12 +46,14 @@ export class CoinCapApiService {
       );
   }
 
-  getCoinById(coinId: string): Observable<Icrypto> {
+  getCoinById(coinId: string): Observable<Icrypto | undefined> {
     return this.http
-      .get<ICryptoItemApiResponse>(`${this.baseUrl}/assets/${coinId}`)
+      .get<ICryptoItemApiResponse | undefined>(
+        `${this.baseUrl}/assets/${coinId}`
+      )
       .pipe(
-        map((response) => response.data),
-        catchError((error) => {
+        map(response => response?.data),
+        catchError(error => {
           console.error('error in getCoinsByIds. Details:', error);
 
           return of({ id: '', name: '', priceUsd: '0' });
@@ -59,7 +63,7 @@ export class CoinCapApiService {
 
   private getHighestExchangeMarketForDogeCoin(
     assetId: string
-  ): Observable<IMarket> {
+  ): Observable<IMarket | null> {
     return this.http
       .get<IMarketApiResponse>(`${this.baseUrl}/markets`, {
         params: {
@@ -67,10 +71,9 @@ export class CoinCapApiService {
         },
       })
       .pipe(
-        map((response) => response.data),
-        map((marketList) => {
+        map(response => response.data),
+        map(marketList => {
           if (!marketList || marketList.length === 0) {
-
             return null;
           }
 
@@ -83,30 +86,24 @@ export class CoinCapApiService {
             }, marketList[0])
           );
         }),
-        switchMap(
-          (marketObservable) => marketObservable as Observable<IMarket>
-        ),
-        catchError((error) => {
+        switchMap(marketObservable => marketObservable as Observable<IMarket>),
+        catchError(error => {
           console.error('error in getCoinsByIds. Details:', error);
 
-          return of({
-            exchangeId: '',
-            volumeUsd24Hr: '',
-          });
+          return of(null);
         })
       );
   }
 
-  getCoinsCombinedData(coinIds: string[]): Observable<Icrypto[] | []> {
+  getCoinsCombinedData(coinIds: string[]): Observable<Icrypto[]> {
     return this.getCoinsByIds(coinIds).pipe(
-      mergeMap((items) =>
+      mergeMap(items =>
         items?.length
           ? forkJoin(
-              items.map((item) =>
+              items.map(item =>
                 this.getHighestExchangeMarketForDogeCoin(item.id).pipe(
-                  map((topMarket) => {
+                  map(topMarket => {
                     if (topMarket !== null) {
-
                       return {
                         id: item.id,
                         name: item.name,
@@ -122,15 +119,10 @@ export class CoinCapApiService {
             )
           : of([])
       ),
-      catchError((error) => {
+      catchError(error => {
         console.error('error Combining datas. Details:', error);
 
-        return of([
-          {
-            id: '',
-            name: '',
-          },
-        ]);
+        return of([]);
       })
     );
   }

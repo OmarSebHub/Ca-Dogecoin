@@ -1,1 +1,3 @@
-<app-table [dataSource]="cryptoCurrencyList"></app-table>
+<ng-container *ngIf="cryptoCurrencyList$ | async as list">
+  <app-table [dataSource]="list"></app-table>
+</ng-container>
