@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
+import { Icrypto } from '../models/cryptoCurrency';
 import { CoinCapApiService } from './coin-cap-api.service';
 
 @Injectable({
@@ -13,19 +14,7 @@ export class DogeCoinConversionService {
   public transformTicketsToDogeCoin(ticketsNumber: number): Observable<number> {
     return this.coinCapApiService.getCoinById('dogecoin').pipe(
       map(res => {
-        if (res?.priceUsd) {
-          const dogecoinPrice = Number(res.priceUsd);
-          const dogecoinsPerDollar = this.dollarToDogeCoin(dogecoinPrice);
-          const ticketsTotalPrice = ticketsNumber * this.ticketPrice;
-          const dogecoinsToPay =
-            ticketsNumber < 2
-              ? ticketsTotalPrice * dogecoinsPerDollar
-              : ticketsTotalPrice * (dogecoinsPerDollar * 0.95);
-
-          return dogecoinsToPay;
-        }
-
-        return 0;
+        return res?.priceUsd ? this.dogeCoinsToPayTotal(res, ticketsNumber) : 0;
       }),
       catchError(error => {
         console.error(
@@ -42,5 +31,17 @@ export class DogeCoinConversionService {
     const dollar = 1;
 
     return dollar / dogeCoinPrice;
+  }
+
+  private dogeCoinsToPayTotal(res: Icrypto, ticketsNumber: number) {
+    const dogecoinPrice = Number(res.priceUsd);
+    const dogecoinsPerDollar = this.dollarToDogeCoin(dogecoinPrice);
+    const ticketsTotalPrice = ticketsNumber * this.ticketPrice;
+    const dogecoinsToPay =
+      ticketsNumber < 2
+        ? ticketsTotalPrice * dogecoinsPerDollar
+        : ticketsTotalPrice * (dogecoinsPerDollar * 0.95);
+
+    return dogecoinsToPay;
   }
 }

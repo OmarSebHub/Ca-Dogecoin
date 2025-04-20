@@ -1,16 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {
-  catchError,
-  forkJoin,
-  from,
-  map,
-  mergeMap,
-  Observable,
-  of,
-  reduce,
-  switchMap,
-} from 'rxjs';
+import { catchError, forkJoin, map, mergeMap, Observable, of } from 'rxjs';
 import {
   Icrypto,
   ICryptoApiResponse,
@@ -46,7 +36,7 @@ export class CoinCapApiService {
       );
   }
 
-  getCoinById(coinId: string): Observable<Icrypto | undefined> {
+  getCoinById(coinId: string): Observable<Icrypto | undefined | null> {
     return this.http
       .get<ICryptoItemApiResponse | undefined>(
         `${this.baseUrl}/assets/${coinId}`
@@ -54,9 +44,9 @@ export class CoinCapApiService {
       .pipe(
         map(response => response?.data),
         catchError(error => {
-          console.error('error in getCoinsByIds. Details:', error);
+          console.error('error in getting Coin data. Details:', error);
 
-          return of({ id: '', name: '', priceUsd: '0' });
+          return of(null);
         })
       );
   }
@@ -77,53 +67,53 @@ export class CoinCapApiService {
             return null;
           }
 
-          return from(marketList).pipe(
-            reduce((acc: IMarket, market) => {
-              const currentMarketVol = Number(market.volumeUsd24Hr);
-              const accVolume = Number(acc.volumeUsd24Hr);
-
-              return currentMarketVol > accVolume ? market : acc;
-            }, marketList[0])
-          );
+          return this.getHighestMarket(marketList);
         }),
-        switchMap(marketObservable => marketObservable as Observable<IMarket>),
         catchError(error => {
-          console.error('error in getCoinsByIds. Details:', error);
+          console.error('error in getting the highest Market. Details:', error);
 
           return of(null);
         })
       );
   }
 
+  private getHighestMarket(marketList: IMarket[]): IMarket {
+    return marketList.reduce((acc, market) => {
+      const currentVolume = Number(market.volumeUsd24Hr);
+      const accVolume = Number(acc.volumeUsd24Hr);
+      return currentVolume > accVolume ? market : acc;
+    }, marketList[0]);
+  }
+
   getCoinsCombinedData(coinIds: string[]): Observable<Icrypto[]> {
     return this.getCoinsByIds(coinIds).pipe(
       mergeMap(items =>
-        items?.length
-          ? forkJoin(
-              items.map(item =>
-                this.getHighestExchangeMarketForDogeCoin(item.id).pipe(
-                  map(topMarket => {
-                    if (topMarket !== null) {
-                      return {
-                        id: item.id,
-                        name: item.name,
-                        priceUsd: item.priceUsd,
-                        topExplorer: topMarket.exchangeId,
-                      };
-                    }
-
-                    return { ...item };
-                  })
-                )
-              )
-            )
-          : of([])
+        items?.length ? forkJoin(this.getItemDataList(items)) : of([])
       ),
       catchError(error => {
         console.error('error Combining datas. Details:', error);
 
         return of([]);
       })
+    );
+  }
+
+  private getItemDataList(items: Icrypto[]): Observable<Icrypto>[] {
+    return items.map((item: Icrypto) =>
+      this.getHighestExchangeMarketForDogeCoin(item.id).pipe(
+        map(topMarket => {
+          if (topMarket !== null) {
+            return {
+              id: item.id,
+              name: item.name,
+              priceUsd: item.priceUsd,
+              topExplorer: topMarket.exchangeId,
+            };
+          }
+
+          return { ...item };
+        })
+      )
     );
   }
 }
